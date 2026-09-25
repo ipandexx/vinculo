@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>VÍNCULO</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧵</text></svg>">
+<style>
+:root{--fundo:#15122a;--painel:#1f1b3a;--linha:#3a3463;--texto:#efe6d2;--suave:#a9a3c4;--fio:#c8553d;--ouro:#d9b45a;--erro:#ff8f7d;--ok:#8fd19e}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{background:radial-gradient(120% 80% at 50% 0%,#241e4a 0%,var(--fundo) 60%);color:var(--texto);font-family:Georgia,'Times New Roman',serif;line-height:1.5;display:flex;justify-content:center;padding:env(safe-area-inset-top,0) 16px env(safe-area-inset-bottom,0)}
+main{width:100%;max-width:400px;margin:auto;padding:24px 0}
+h1{font-size:2.6rem;letter-spacing:.04em;margin:0;text-align:center;font-weight:700}
+.fio{display:block;margin:6px auto 4px;width:220px;height:24px}
+.sub{text-align:center;color:var(--suave);margin:0 0 24px}
+.painel{background:var(--painel);border:1px solid var(--linha);border-radius:14px;padding:20px}
+.abas{display:flex;gap:8px;margin-bottom:16px}
+.abas button{flex:1;background:none;border:1px solid var(--linha);color:var(--suave);padding:10px;border-radius:8px;font:inherit;font-size:1rem}
+.abas button[aria-selected=true]{border-color:var(--ouro);color:var(--texto);background:#2a2550}
+label{display:block;margin:12px 0 4px;color:var(--suave);font-size:.95rem}
+input{width:100%;padding:12px;background:#120f24;border:1px solid var(--linha);border-radius:8px;color:var(--texto);font:inherit;font-size:1rem}
+input:focus,button:focus-visible{outline:2px solid var(--ouro);outline-offset:1px}
+small{display:block;color:var(--suave);margin-top:4px;font-size:.85rem}
+.acao{width:100%;margin-top:18px;padding:13px;background:var(--fio);color:#fff;border:0;border-radius:8px;font:inherit;font-size:1.05rem;font-weight:700}
+.acao:disabled{opacity:.6}
+.msg{min-height:1.4em;margin:12px 0 0;font-size:.95rem}
+.msg.erro{color:var(--erro)}.msg.ok{color:var(--ok)}
+.aviso{margin-top:14px;padding:10px 12px;border-left:3px solid var(--ouro);background:#181432;color:var(--suave);font-size:.88rem;border-radius:0 8px 8px 0}
+.oculto{display:none}
+#logado h2{margin:0 0 6px;font-size:1.4rem}
+#logado p{color:var(--suave);margin:0 0 16px}
+.sair{width:100%;padding:12px;background:none;border:1px solid var(--linha);color:var(--texto);border-radius:8px;font:inherit;font-size:1rem}
+@media (prefers-reduced-motion:no-preference){.fio path{stroke-dasharray:260;stroke-dashoffset:260;animation:tecer 1.6s ease forwards}@keyframes tecer{to{stroke-dashoffset:0}}}
+</style>
+</head>
+<body>
+<main>
+  <h1>VÍNCULO</h1>
+  <svg class="fio" viewBox="0 0 220 24" aria-hidden="true"><path d="M12 12 C60 -4, 90 28, 110 12 S160 -4, 208 12" fill="none" stroke="#c8553d" stroke-width="2.5" stroke-linecap="round"/><circle cx="12" cy="12" r="5" fill="#d9b45a"/><circle cx="208" cy="12" r="5" fill="#d9b45a"/></svg>
+  <p class="sub">Mestre e jogadores, na mesma mesa.</p>
+
+  <section class="painel" id="entrada">
+    <div class="abas" role="tablist">
+      <button role="tab" id="aba-entrar" aria-selected="true">Entrar</button>
+      <button role="tab" id="aba-criar" aria-selected="false">Criar conta</button>
+    </div>
+    <label for="id">Seu ID</label>
+    <input id="id" autocomplete="username" autocapitalize="none" spellcheck="false" maxlength="20">
+    <small>De 3 a 20 caracteres: letras minúsculas, números e _</small>
+    <label for="senha">Senha</label>
+    <input id="senha" type="password" autocomplete="current-password" maxlength="72">
+    <div id="campo-repetir" class="oculto">
+      <label for="senha2">Repita a senha</label>
+      <input id="senha2" type="password" autocomplete="new-password" maxlength="72">
+    </div>
+    <button class="acao" id="botao">Entrar</button>
+    <p class="msg" id="msg" role="status"></p>
+    <p class="aviso oculto" id="aviso">Não existe recuperação de senha. Anote seu ID e sua senha.</p>
+  </section>
+
+  <section class="painel oculto" id="logado">
+    <h2 id="ola"></h2>
+    <p>Você está conectado. As mesas e fichas chegam nas próximas etapas.</p>
+    <button class="sair" id="sair">Sair da conta</button>
+  </section>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script>
+const SUPABASE_URL = "https://grrgwxcagvvafdmzsmro.supabase.co";
+const SUPABASE_KEY = "sb_publishable_oB4NBGpLlz7VPU2g7MhT0Q_Na7z5rO8";
+const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+const $ = id => document.getElementById(id);
+let modo = "entrar";
+
+function mostrar(texto, tipo){ const m=$("msg"); m.textContent=texto||""; m.className="msg "+(tipo||""); }
+
+function trocarModo(novo){
+  modo = novo; mostrar("");
+  $("aba-entrar").setAttribute("aria-selected", novo==="entrar");
+  $("aba-criar").setAttribute("aria-selected", novo==="criar");
+  $("campo-repetir").classList.toggle("oculto", novo!=="criar");
+  $("aviso").classList.toggle("oculto", novo!=="criar");
+  $("botao").textContent = novo==="criar" ? "Criar conta" : "Entrar";
+  $("senha").autocomplete = novo==="criar" ? "new-password" : "current-password";
+}
+$("aba-entrar").onclick = () => trocarModo("entrar");
+$("aba-criar").onclick = () => trocarModo("criar");
+
+const emailDe = id => id + "@vinculo.app";
+
+function traduzir(erro){
+  const t = (erro.message||"").toLowerCase();
+  if (t.includes("invalid login")) return "ID ou senha incorretos.";
+  if (t.includes("already registered") || t.includes("already been registered")) return "Esse ID já está em uso. Escolha outro.";
+  if (t.includes("database error")) return "Não foi possível criar esse ID. Escolha outro.";
+  if (t.includes("rate limit") || t.includes("too many")) return "Muitas tentativas. Espere um minuto e tente de novo.";
+  if (t.includes("password")) return "A senha precisa ter pelo menos 6 caracteres.";
+  if (t.includes("fetch") || t.includes("network")) return "Sem conexão. Verifique a internet e tente de novo.";
+  return "Algo deu errado: " + erro.message;
+}
+
+$("botao").onclick = async () => {
+  const id = $("id").value.trim().toLowerCase();
+  const senha = $("senha").value;
+  if (!/^[a-z0-9_]{3,20}$/.test(id)) return mostrar("O ID deve ter de 3 a 20 caracteres: letras minúsculas, números ou _.", "erro");
+  if (senha.length < 6) return mostrar("A senha precisa ter pelo menos 6 caracteres.", "erro");
+  if (modo==="criar" && senha !== $("senha2").value) return mostrar("As senhas não são iguais.", "erro");
+
+  $("botao").disabled = true; mostrar("Aguarde...");
+  try {
+    if (modo==="criar") {
+      const { data, error } = await db.auth.signUp({ email: emailDe(id), password: senha, options: { data: { username: id } } });
+      if (error) throw error;
+      if (!data.session) return mostrar("Conta criada, mas o Supabase ainda exige confirmação de e-mail. Desative Confirm email em Authentication e tente entrar.", "erro");
+    } else {
+      const { error } = await db.auth.signInWithPassword({ email: emailDe(id), password: senha });
+      if (error) throw error;
+    }
+    mostrar("");
+  } catch (e) { mostrar(traduzir(e), "erro"); }
+  finally { $("botao").disabled = false; }
+};
+
+$("sair").onclick = () => db.auth.signOut();
+
+async function atualizarTela(session){
+  const logado = !!session;
+  $("entrada").classList.toggle("oculto", logado);
+  $("logado").classList.toggle("oculto", !logado);
+  if (!logado) return;
+  let nome = (session.user.user_metadata||{}).username || "jogador";
+  try {
+    const { data } = await db.from("profiles").select("username").eq("id", session.user.id).maybeSingle();
+    if (data) nome = data.username;
+  } catch(e){}
+  $("ola").textContent = "Bem-vindo, " + nome;
+}
+db.auth.onAuthStateChange((_ev, session) => atualizarTela(session));
+db.auth.getSession().then(({data}) => atualizarTela(data.session));
+</script>
+</body>
+</html>
