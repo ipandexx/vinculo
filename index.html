@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>VÍNCULO — RPG Online</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍺</text></svg>">
+<style>
+  :root{
+    --ouro:#c9a227; --ouro-claro:#e9c66b; --texto:#efe3c8; --suave:rgba(239,227,200,.72);
+    --painel:rgba(18,12,8,.86); --linha:rgba(201,162,39,.35);
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%;margin:0}
+  body{
+    font-family:'Cinzel',Georgia,'Times New Roman',serif;
+    color:var(--texto); background:#0c0908; overflow:hidden;
+    padding-top:env(safe-area-inset-top,0); padding-bottom:env(safe-area-inset-bottom,0);
+  }
+  .tela{position:relative; height:100vh; height:100dvh; width:100%; overflow:hidden}
+  .camada-fundo{position:absolute; top:-3%; left:-3%; right:-3%; bottom:-3%; will-change:transform}
+  .fundo{position:absolute; top:0; left:0; right:0; bottom:0; width:100%; height:100%; object-fit:cover; object-position:52% 42%}
+  .veu{position:absolute; top:0; left:0; right:0; bottom:0; background:linear-gradient(180deg, rgba(10,6,3,.55) 0%, rgba(10,6,3,.05) 28%, rgba(10,6,3,.10) 55%, rgba(10,6,3,.78) 100%)}
+  .clima{position:absolute; top:0; left:0; right:0; bottom:0; background:radial-gradient(120% 90% at 50% 40%, transparent 40%, rgba(20,12,4,.4) 100%); mix-blend-mode:multiply; opacity:.6}
+
+  .névoa{position:absolute; left:0; right:0; bottom:0; height:38%; pointer-events:none; overflow:hidden}
+  .névoa span{position:absolute; bottom:-20%; width:60%; height:140%; border-radius:50%; background:radial-gradient(closest-side, rgba(210,200,180,.10), transparent 70%); filter:blur(6px)}
+  .névoa span:nth-child(1){left:-10%}
+  .névoa span:nth-child(2){left:35%; height:120%; background:radial-gradient(closest-side, rgba(210,200,180,.07), transparent 70%)}
+  .névoa span:nth-child(3){left:65%}
+
+  .brasas{position:absolute; top:0; left:0; right:0; bottom:0; pointer-events:none}
+  .brasas i{position:absolute; bottom:-6%; width:3px; height:3px; border-radius:50%; background:#f0b25a; box-shadow:0 0 6px 2px rgba(240,178,90,.6); opacity:0}
+
+  body.sem-efeitos .névoa, body.sem-efeitos .brasas, body.sem-efeitos .camada-fundo{display:none !important}
+  body.sem-efeitos .fundo{position:absolute}
+
+  @media (prefers-reduced-motion:no-preference){
+    .névoa span{animation:derivar 46s ease-in-out infinite}
+    .névoa span:nth-child(2){animation-duration:60s; animation-delay:-8s}
+    .névoa span:nth-child(3){animation-duration:52s; animation-delay:-20s}
+    @keyframes derivar{0%{transform:translateX(0) translateY(0)}50%{transform:translateX(6%) translateY(-2%)}100%{transform:translateX(0) translateY(0)}}
+    .brasas i{animation:subir linear infinite}
+    @keyframes subir{
+      0%{transform:translateY(0) translateX(0); opacity:0}
+      10%{opacity:.55} 90%{opacity:.15}
+      100%{transform:translateY(-70vh) translateX(var(--deriva,10px)); opacity:0}
+    }
+  }
+  body.sem-efeitos .névoa span, body.sem-efeitos .brasas i{animation:none !important}
+
+  /* ---------- Topo ---------- */
+  .topo{position:absolute; top:0; left:0; right:0; display:flex; justify-content:space-between; align-items:center; padding:calc(env(safe-area-inset-top,0) + 14px) 4vw 0; z-index:5}
+  .marca-topo{display:flex; align-items:center; gap:8px; font-size:.66rem; letter-spacing:.14em; color:var(--suave); text-transform:uppercase; white-space:nowrap}
+  .marca-topo svg{width:16px; height:16px; flex:none}
+  .controles{display:flex; gap:6px}
+  .icone-btn{width:38px; height:38px; padding:0; border:0; background:none; cursor:pointer; -webkit-tap-highlight-color:transparent; flex:none}
+  .icone-btn img{width:100%; height:100%; object-fit:contain; filter:drop-shadow(0 2px 6px rgba(0,0,0,.6)); transition:opacity .2s, filter .2s}
+  .icone-btn:active img{transform:scale(.92)}
+  .icone-btn.mudo img{opacity:.4; filter:drop-shadow(0 2px 6px rgba(0,0,0,.6)) grayscale(.6)}
+
+  /* ---------- Centro: fundo é protagonista, logo/botão ficam discretos e limitados por vh e vw ---------- */
+  .centro{position:absolute; top:0; left:0; right:0; bottom:0; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:0 6vw; text-align:center; z-index:3}
+  .centro-conteudo{width:100%; max-width:420px; display:flex; flex-direction:column; align-items:center}
+  .logo{width:56%; max-width:300px; max-height:20vh; object-fit:contain; filter:drop-shadow(0 10px 22px rgba(0,0,0,.65))}
+  @media (prefers-reduced-motion:no-preference){
+    .logo{animation:surgir .9s ease both, brilho 6s ease-in-out 1.2s infinite}
+    @keyframes brilho{
+      0%,100%{filter:drop-shadow(0 10px 22px rgba(0,0,0,.65)) drop-shadow(0 0 10px rgba(233,198,107,.15))}
+      50%{filter:drop-shadow(0 10px 22px rgba(0,0,0,.65)) drop-shadow(0 0 22px rgba(233,198,107,.32))}
+    }
+  }
+  body.sem-efeitos .logo{animation:none !important}
+
+  .subtitulo{margin-top:6px; font-size:.62rem; letter-spacing:.34em; color:var(--suave); text-transform:uppercase}
+
+  .btn-jornada{position:relative; margin-top:20px; cursor:pointer; width:58%; max-width:280px; -webkit-tap-highlight-color:transparent}
+  .btn-jornada img{width:100%; display:block; filter:drop-shadow(0 6px 16px rgba(0,0,0,.55))}
+  .btn-jornada:active{transform:translateY(1px)}
+  .btn-jornada:active img{filter:drop-shadow(0 3px 8px rgba(0,0,0,.5)) brightness(.94)}
+
+  /* ---------- Rodapé ---------- */
+  .rodape{position:absolute; left:0; right:0; bottom:0; display:flex; flex-direction:column; align-items:center; gap:8px; padding:0 6vw calc(env(safe-area-inset-bottom,0) + 14px); z-index:4}
+  .tagline{width:40%; max-width:220px; opacity:.9}
+  .divisor{width:60%; max-width:300px; opacity:.55}
+
+  /* ---------- Painel de configurações — madeira/bronze, sem vidro ---------- */
+  .painel-config{position:fixed; top:0; left:0; right:0; bottom:0; z-index:20; display:flex; align-items:flex-end; justify-content:center; background:rgba(4,3,2,.6); opacity:0; pointer-events:none; transition:opacity .25s ease}
+  .painel-config.aberto{opacity:1; pointer-events:auto}
+  .caixa-config{position:relative; width:92%; max-width:440px; margin-left:auto; margin-right:auto; max-height:84dvh; overflow-y:auto; padding:34px 26px calc(env(safe-area-inset-bottom,0) + 30px); transform:translateY(100%); transition:transform .3s ease; margin-bottom:2vh}
+  .caixa-config{background:
+      linear-gradient(180deg, rgba(0,0,0,.18), rgba(0,0,0,.32)),
+      repeating-linear-gradient(90deg, rgba(255,255,255,.025) 0 2px, transparent 2px 7px),
+      linear-gradient(160deg, #3b2415 0%, #24140c 60%, #1a0e08 100%);
+    border:1px solid rgba(201,162,39,.4); border-top:2px solid rgba(233,198,107,.55);
+    border-radius:10px 10px 0 0; box-shadow:0 -8px 28px rgba(0,0,0,.55), inset 0 0 40px rgba(0,0,0,.35)}
+  .painel-config.aberto .caixa-config{transform:translateY(0)}
+  .cabecalho-config{display:flex; justify-content:space-between; align-items:center; margin-bottom:14px}
+  .cabecalho-config h2{margin:0; font-size:1.05rem; letter-spacing:.12em; color:var(--ouro-claro); text-transform:uppercase; text-shadow:0 2px 4px rgba(0,0,0,.6)}
+  .fechar-config{background:none; border:1px solid var(--linha); color:var(--texto); width:30px; height:30px; border-radius:50%; font-size:1rem; line-height:1; cursor:pointer; flex:none}
+
+  .abas-config{display:flex; justify-content:center; gap:10px; margin:6px 0 18px}
+  .abas-config button{background:none; border:0; padding:0; cursor:pointer; width:44%; max-width:170px; -webkit-tap-highlight-color:transparent; opacity:.55; transition:opacity .2s, transform .2s}
+  .abas-config button img{width:100%; display:block; filter:drop-shadow(0 3px 8px rgba(0,0,0,.5))}
+  .abas-config button.ativa{opacity:1; transform:translateY(-2px)}
+
+  .painel-aba{display:none}
+  .painel-aba.ativa{display:block; animation:surgir .35s ease both}
+
+  .linha-opcao{display:flex; align-items:center; justify-content:space-between; padding:12px 4px; border-bottom:1px solid rgba(201,162,39,.18); font-size:.92rem}
+  .interruptor{position:relative; width:46px; height:26px; flex:none}
+  .interruptor input{opacity:0; width:100%; height:100%; margin:0; cursor:pointer}
+  .trilho{position:absolute; inset:0; background:rgba(255,255,255,.08); border:1px solid var(--linha); border-radius:999px; pointer-events:none; transition:background .2s}
+  .bolinha{position:absolute; top:2px; left:2px; width:20px; height:20px; border-radius:50%; background:var(--suave); transition:transform .2s, background .2s; pointer-events:none}
+  .interruptor input:checked ~ .trilho{background:rgba(201,162,39,.35)}
+  .interruptor input:checked ~ .trilho .bolinha{transform:translateX(20px); background:var(--ouro-claro)}
+
+  .slider-linha{margin-bottom:16px; font-size:.86rem; color:var(--suave)}
+  .slider-linha .rotulo-slider{display:flex; justify-content:space-between; margin-bottom:6px}
+  .slider-linha input[type=range]{width:100%; accent-color:var(--ouro)}
+
+  @media (prefers-reduced-motion:no-preference){
+    .subtitulo,.btn-jornada,.rodape{animation:surgir .9s ease both}
+    .subtitulo{animation-delay:.15s} .btn-jornada{animation-delay:.3s} .rodape{animation-delay:.45s}
+  }
+  @keyframes surgir{from{opacity:0; transform:translateY(14px)} to{opacity:1; transform:none}}
+
+  /* ---------- Telas bem grandes (desktop/monitor): trava para o fundo continuar protagonista ---------- */
+  @media (min-width:1000px){
+    .logo{width:26%; max-width:300px}
+    .btn-jornada{width:20%; max-width:280px}
+    .tagline{width:16%; max-width:220px}
+    .divisor{width:24%; max-width:300px}
+    .icone-btn{width:44px; height:44px}
+    .marca-topo{font-size:.78rem}
+  }
+
+  /* ---------- Telas bem baixas (celular deitado, notebook pequeno): reduz para nada colidir ---------- */
+  @media (max-height:480px){
+    .logo{max-height:26vh}
+    .btn-jornada{margin-top:10px}
+    .rodape{display:none}
+  }
+</style>
+</head>
+<body>
+<div class="tela">
+  <div class="camada-fundo" id="camada-fundo">
+    <img class="fundo" src="home-fundo-taverna.jpg" alt="">
+  </div>
+  <div class="veu"></div>
+  <div class="clima"></div>
+  <div class="névoa" aria-hidden="true"><span></span><span></span><span></span></div>
+  <div class="brasas" id="brasas" aria-hidden="true"></div>
+  <audio id="tema" src="vinculo-tema.mp3" loop preload="none"></audio>
+
+  <div class="topo">
+    <div class="marca-topo">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M12 2v20M2 12h20M5 5l14 14M19 5L5 19"/></svg>
+      <span>VÍNCULO RPG ONLINE</span>
+    </div>
+    <div class="controles">
+      <button class="icone-btn mudo" id="btn-som" aria-label="Som"><img src="icone-som-grande.png" alt=""></button>
+      <button class="icone-btn" id="btn-config" aria-label="Configurações"><img src="icone-config-grande.png" alt=""></button>
+    </div>
+  </div>
+
+  <div class="centro">
+    <div class="centro-conteudo">
+      <img class="logo" src="vinculo-logo-madeira.png" alt="VÍNCULO">
+      <div class="subtitulo">RPG Online</div>
+      <div class="btn-jornada" id="btn-jornada" role="button" tabindex="0">
+        <img src="botao-inicie-sua-jornada-v2.png" alt="Inicie sua jornada">
+      </div>
+    </div>
+  </div>
+
+  <div class="rodape">
+    <img class="divisor" src="ornamento-divisor.png" alt="">
+    <img class="tagline" src="tagline.png" alt="Grandes histórias nascem de conexões">
+  </div>
+</div>
+
+<div class="painel-config" id="painel-config">
+  <div class="caixa-config">
+    <div class="cabecalho-config">
+      <h2>Configurações</h2>
+      <button class="fechar-config" id="fechar-config">✕</button>
+    </div>
+
+    <div class="abas-config">
+      <button class="aba-btn ativa" data-aba="geral"><img src="tab-geral.png" alt="Geral"></button>
+      <button class="aba-btn" data-aba="audio"><img src="tab-audio.png" alt="Áudio"></button>
+    </div>
+
+    <div class="painel-aba ativa" data-painel="geral">
+      <div class="linha-opcao">
+        <span>Ativar efeitos visuais</span>
+        <label class="interruptor">
+          <input type="checkbox" id="chk-efeitos" checked>
+          <span class="trilho"><span class="bolinha"></span></span>
+        </label>
+      </div>
+    </div>
+
+    <div class="painel-aba" data-painel="audio">
+      <div class="slider-linha">
+        <div class="rotulo-slider"><span>Música</span></div>
+        <input type="range" id="vol-musica" min="0" max="100" value="70">
+      </div>
+      <div class="slider-linha">
+        <div class="rotulo-slider"><span>Efeitos de ambiente</span></div>
+        <input type="range" id="vol-ambiente" min="0" max="100" value="60">
+      </div>
+      <div class="slider-linha">
+        <div class="rotulo-slider"><span>Efeitos de interface</span></div>
+        <input type="range" id="vol-interface" min="0" max="100" value="50">
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ---------- Som ---------- */
+const somBtn = document.getElementById('btn-som');
+const tema = document.getElementById('tema');
+let somLigado = false;
+somBtn.addEventListener('click', () => {
+  somLigado = !somLigado;
+  somBtn.classList.toggle('mudo', !somLigado);
+  if (somLigado) { tema.play().catch(() => {}); }
+  else { tema.pause(); }
+});
+document.getElementById('vol-musica').addEventListener('input', (e) => {
+  tema.volume = e.target.value / 100;
+});
+
+/* ---------- Configurações: abrir/fechar e trocar abas ---------- */
+const configBtn = document.getElementById('btn-config');
+const painel = document.getElementById('painel-config');
+configBtn.addEventListener('click', () => painel.classList.add('aberto'));
+document.getElementById('fechar-config').addEventListener('click', () => painel.classList.remove('aberto'));
+
+var todasAbas = document.querySelectorAll('.aba-btn');
+for (var i = 0; i < todasAbas.length; i++) {
+  todasAbas[i].addEventListener('click', function(){
+    var btn = this;
+    var abas = document.querySelectorAll('.aba-btn');
+    for (var j = 0; j < abas.length; j++) abas[j].classList.remove('ativa');
+    var paineis = document.querySelectorAll('.painel-aba');
+    for (var k = 0; k < paineis.length; k++) paineis[k].classList.remove('ativa');
+    btn.classList.add('ativa');
+    document.querySelector('.painel-aba[data-painel="' + btn.dataset.aba + '"]').classList.add('ativa');
+  });
+}
+
+/* ---------- Geral: liga/desliga efeitos visuais de verdade ---------- */
+const chkEfeitos = document.getElementById('chk-efeitos');
+const semMovimentoSO = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+if (semMovimentoSO) chkEfeitos.checked = false;
+function atualizarEfeitos(){
+  document.body.classList.toggle('sem-efeitos', !chkEfeitos.checked);
+}
+chkEfeitos.addEventListener('change', atualizarEfeitos);
+atualizarEfeitos();
+
+/* ---------- Navegação ---------- */
+document.getElementById('btn-jornada').addEventListener('click', () => { window.location.href = 'login.html'; });
+document.getElementById('btn-jornada').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); window.location.href = 'login.html'; }
+});
+
+/* ---------- Brasas subindo (partículas leves) ---------- */
+if (!semMovimentoSO) {
+  const brasas = document.getElementById('brasas');
+  const total = window.innerWidth < 480 ? 8 : 14;
+  for (let i = 0; i < total; i++) {
+    const p = document.createElement('i');
+    p.style.left = (Math.random() * 100) + '%';
+    p.style.setProperty('--deriva', (Math.random() * 40 - 20) + 'px');
+    p.style.animationDuration = (9 + Math.random() * 8) + 's';
+    p.style.animationDelay = (Math.random() * -16) + 's';
+    brasas.appendChild(p);
+  }
+}
+
+/* ---------- Parallax sutil no fundo ---------- */
+if (!semMovimentoSO) {
+  const camada = document.getElementById('camada-fundo');
+  const LIMITE = 10;
+  let alvoX = 0, alvoY = 0, atualX = 0, atualY = 0;
+  function mover(nx, ny){ alvoX = nx * LIMITE; alvoY = ny * LIMITE; }
+  window.addEventListener('pointermove', (e) => {
+    mover((e.clientX / window.innerWidth - 0.5) * 2, (e.clientY / window.innerHeight - 0.5) * 2);
+  });
+  window.addEventListener('deviceorientation', (e) => {
+    if (e.gamma == null) return;
+    mover(Math.max(-1, Math.min(1, e.gamma / 20)), Math.max(-1, Math.min(1, (e.beta - 45) / 20)));
+  });
+  (function anime(){
+    atualX += (alvoX - atualX) * 0.04;
+    atualY += (alvoY - atualY) * 0.04;
+    camada.style.transform = `translate(${atualX.toFixed(2)}px, ${atualY.toFixed(2)}px)`;
+    requestAnimationFrame(anime);
+  })();
+}
+</script>
+</body>
+</html>
