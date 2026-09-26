@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vínculo - RPG de Mesa Virtual</title>
+
+  <!-- Tipografia Roots Medieval Discreta (Google Fonts) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=Crimson+Pro:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+
+  <style>
+    /* Reset e Variáveis de Cores (Roots Medieval: Madeira, Ferro, Bronze e Pergaminho) */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg-chao: #0e0b08;
+      --madeira-escura: #1a130e;
+      --madeira-borda: #423223;
+      --ferro-fundido: #26211c;
+      --ferro-borda: #52402e;
+      --bronze-destaque: #c99f5d;
+      --bronze-suave: #8c6c3e;
+      --pergaminho-fundo: #dfd2b5;
+      --pergaminho-borda: #7d6749;
+      --pergaminho-texto: #1c130b;
+      --texto-claro: #ded0b6;
+      --texto-apagado: #99856c;
+      --alerta-erro-bg: #29120e;
+      --alerta-erro-txt: #e89f92;
+      --alerta-sucesso-bg: #142316;
+      --alerta-sucesso-txt: #a7dbae;
+    }
+
+    body {
+      background-color: var(--bg-chao);
+      color: var(--texto-claro);
+      font-family: 'Crimson Pro', Georgia, serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      background-image: 
+        radial-gradient(circle at 50% 20%, rgba(68, 50, 30, 0.22) 0%, transparent 60%),
+        radial-gradient(circle at 50% 80%, rgba(18, 14, 10, 0.9) 0%, #0a0806 100%);
+      position: relative;
+    }
+
+    /* Moldura de ferro fundido nas bordas da tela */
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      border: 8px solid #1c1510;
+      box-shadow: inset 0 0 25px rgba(0, 0, 0, 0.95);
+      pointer-events: none;
+      z-index: 100;
+    }
+
+    /* Top Bar */
+    header {
+      padding: 16px 28px;
+      background: linear-gradient(180deg, #18120d 0%, #100c09 100%);
+      border-bottom: 2px solid #33261a;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: relative;
+      z-index: 10;
+    }
+
+    .marca-titulo {
+      font-family: 'Cinzel', serif;
+      font-size: 1.25rem;
+      font-weight: 800;
+      letter-spacing: 0.15em;
+      color: var(--bronze-destaque);
+      text-transform: uppercase;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.9);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .emblema-mini {
+      width: 28px;
+      height: 28px;
+      background: #241a12;
+      border: 1px solid var(--bronze-suave);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: inset 0 1px 2px rgba(0,0,0,0.8);
+      font-size: 0.85rem;
+    }
+
+    .btn-voltar {
+      background: #1f1710;
+      border: 1px solid var(--ferro-borda);
+      color: var(--texto-claro);
+      font-family: 'Cinzel', serif;
+      font-size: 0.75rem;
+      letter-spacing: 0.08em;
+      padding: 7px 14px;
+      cursor: pointer;
+      text-transform: uppercase;
+      transition: background 0.15s, border-color 0.15s;
+    }
+
+    .btn-voltar:hover {
+      background: #2d2117;
+      border-color: var(--bronze-suave);
+      color: #fff;
+    }
+
+    /* Conteúdo principal */
+    main {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 32px 16px;
+      position: relative;
+      z-index: 10;
+    }
+
+    /* Painéis de madeira escura com cantoneiras */
+    .painel-madeira {
+      background: linear-gradient(180deg, #201711 0%, #150f0b 100%);
+      border: 2px solid var(--madeira-borda);
+      box-shadow: 
+        inset 0 1px 0 rgba(201, 159, 93, 0.2),
+        inset 0 0 16px rgba(0, 0, 0, 0.9),
+        0 14px 28px rgba(0, 0, 0, 0.9);
+      position: relative;
+      padding: 36px 30px;
+    }
+
+    .cantoneira {
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      border-color: var(--bronze-suave);
+      pointer-events: none;
+    }
+    .cantoneira-top-left { top: 3px; left: 3px; border-top: 2px solid; border-left: 2px solid; }
+    .cantoneira-top-right { top: 3px; right: 3px; border-top: 2px solid; border-right: 2px solid; }
+    .cantoneira-bottom-left { bottom: 3px; left: 3px; border-bottom: 2px solid; border-left: 2px solid; }
+    .cantoneira-bottom-right { bottom: 3px; right: 3px; border-bottom: 2px solid; border-right: 2px solid; }
+
+    /* Tela 1: Home */
+    #tela-home {
+      max-width: 580px;
+      width: 100%;
+      text-align: center;
+    }
+
+    .titulo-principal {
+      font-family: 'Cinzel', serif;
+      font-size: 2.8rem;
+      font-weight: 900;
+      letter-spacing: 0.18em;
+      color: #ebd09e;
+      text-transform: uppercase;
+      text-shadow: 0 4px 10px rgba(0,0,0,0.95);
+      margin-bottom: 12px;
+    }
+
+    .divisor-ferro {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      margin: 0 auto 24px auto;
+      max-width: 240px;
+    }
+
+    .divisor-linha {
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--bronze-suave), transparent);
+    }
+
+    .divisor-losango {
+      width: 8px;
+      height: 8px;
+      background-color: var(--bronze-destaque);
+      transform: rotate(45deg);
+      border: 1px solid #3d2c19;
+    }
+
+    .mensagem-imersiva {
+      font-size: 1.15rem;
+      line-height: 1.6;
+      color: #c9bea7;
+      font-style: italic;
+      margin-bottom: 34px;
+      padding: 0 10px;
+    }
+
+    /* Botões de Ferro Fundido e Bronze */
+    .btn-ferro {
+      background: linear-gradient(180deg, #44321e 0%, #2b1e12 50%, #1c130b 100%);
+      border: 1px solid var(--bronze-suave);
+      color: #f7edd7;
+      font-family: 'Cinzel', serif;
+      font-size: 0.95rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding: 14px 28px;
+      cursor: pointer;
+      display: inline-block;
+      box-shadow: 
+        inset 0 1px 0 rgba(230, 195, 135, 0.35),
+        inset 0 -2px 0 rgba(0,0,0,0.8),
+        0 6px 14px rgba(0,0,0,0.8);
+      transition: all 0.15s ease-in-out;
+      width: 100%;
+    }
+
+    .btn-ferro:hover {
+      background: linear-gradient(180deg, #573f27 0%, #352516 50%, #23180e 100%);
+      border-color: var(--bronze-destaque);
+      box-shadow: 
+        inset 0 1px 0 rgba(255, 220, 160, 0.45),
+        inset 0 -2px 0 rgba(0,0,0,0.8),
+        0 8px 18px rgba(0,0,0,0.9);
+      color: #fff;
+    }
+
+    .btn-ferro:active {
+      transform: translateY(1px);
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.9);
+    }
+
+    /* Tela 2: Autenticação */
+    #tela-auth {
+      max-width: 900px;
+      width: 100%;
+      display: none; /* Oculta na inicialização */
+    }
+
+    .cabecalho-auth {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    .titulo-auth {
+      font-family: 'Cinzel', serif;
+      font-size: 1.8rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      color: #ebd09e;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .subtitulo-auth {
+      font-size: 0.95rem;
+      color: var(--texto-apagado);
+    }
+
+    .grid-autenticacao {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+
+    @media (max-width: 768px) {
+      .grid-autenticacao {
+        grid-template-columns: 1fr;
+      }
+      .titulo-principal {
+        font-size: 2.2rem;
+      }
+    }
+
+    .titulo-caixa {
+      font-family: 'Cinzel', serif;
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #f0dfbe;
+      border-bottom: 1px solid #3d2d1e;
+      padding-bottom: 10px;
+      margin-bottom: 14px;
+      letter-spacing: 0.05em;
+    }
+
+    .descricao-caixa {
+      font-size: 0.85rem;
+      color: var(--texto-apagado);
+      margin-bottom: 18px;
+    }
+
+    .campo-grupo {
+      margin-bottom: 16px;
+      text-align: left;
+    }
+
+    .campo-label {
+      display: block;
+      font-family: 'Cinzel', serif;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      color: #cfbe9f;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    /* Pergaminho antigo para campos de texto */
+    .input-pergaminho {
+      width: 100%;
+      background: linear-gradient(180deg, #e4d7bf 0%, #d8c9a9 100%);
+      color: var(--pergaminho-texto);
+      border: 1px solid var(--pergaminho-borda);
+      padding: 10px 12px;
+      font-size: 0.95rem;
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-weight: 600;
+      box-shadow: inset 0 2px 4px rgba(60, 40, 20, 0.35);
+      outline: none;
+    }
+
+    .input-pergaminho:focus {
+      border-color: #553e24;
+      box-shadow: 
+        inset 0 2px 4px rgba(60, 40, 20, 0.4),
+        0 0 0 2px rgba(180, 140, 70, 0.35);
+    }
+
+    .input-pergaminho::placeholder {
+      color: #7a6a52;
+      font-style: italic;
+    }
+
+    /* Mensagens de feedback */
+    .mensagem-status {
+      font-size: 0.85rem;
+      padding: 8px 12px;
+      margin-bottom: 16px;
+      border: 1px solid;
+      display: none;
+    }
+
+    .status-erro {
+      background-color: var(--alerta-erro-bg);
+      border-color: #612219;
+      color: var(--alerta-erro-txt);
+    }
+
+    .status-sucesso {
+      background-color: var(--alerta-sucesso-bg);
+      border-color: #214d27;
+      color: var(--alerta-sucesso-txt);
+    }
+
+    /* Rodapé */
+    footer {
+      padding: 12px 20px;
+      background: #090705;
+      border-top: 1px solid #241b12;
+      text-align: center;
+      font-family: 'Cinzel', serif;
+      font-size: 0.72rem;
+      letter-spacing: 0.1em;
+      color: #6b5c49;
+      position: relative;
+      z-index: 10;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Bar -->
+  <header>
+    <div class="marca-titulo">
+      <div class="emblema-mini">❖</div>
+      <span>Vínculo</span>
+    </div>
+
+    <!-- Botão de Retornar à Home -->
+    <button id="btn-retornar" class="btn-voltar" style="display: none;" onclick="mostrarHome()">
+      ← Retornar ao Início
+    </button>
+  </header>
+
+  <!-- Conteúdo Principal -->
+  <main>
+    <!-- ============================================== -->
+    <!-- 1. INTRODUÇÃO DIRETA (TELA HOME)               -->
+    <!-- ============================================== -->
+    <section id="tela-home" class="painel-madeira">
+      <div class="cantoneira cantoneira-top-left"></div>
+      <div class="cantoneira cantoneira-top-right"></div>
+      <div class="cantoneira cantoneira-bottom-left"></div>
+      <div class="cantoneira cantoneira-bottom-right"></div>
+
+      <h1 class="titulo-principal">VÍNCULO</h1>
+
+      <!-- Divisor ornamental rústico -->
+      <div class="divisor-ferro">
+        <div class="divisor-linha"></div>
+        <div class="divisor-losango"></div>
+        <div class="divisor-linha"></div>
+      </div>
+
+      <p class="mensagem-imersiva">
+        "Destinos são forjados ao redor da mesa. Honre seus juramentos, 
+        reúna seus companheiros e adentre o salão onde as crônicas ganham vida."
+      </p>
+
+      <!-- Botão Único Principal -->
+      <button class="btn-ferro" onclick="mostrarAutenticacao()">
+        Adentrar os Portões →
+      </button>
+    </section>
+
+    <!-- ============================================== -->
+    <!-- 2. INTERFACE DE AUTENTICAÇÃO (SEM EMAIL)       -->
+    <!-- ============================================== -->
+    <section id="tela-auth">
+      <div class="cabecalho-auth">
+        <h2 class="titulo-auth">Portões de Acesso</h2>
+        <p class="subtitulo-auth">Acesse seu juramento existente ou forje um novo registro no códice.</p>
+      </div>
+
+      <div class="grid-autenticacao">
+        
+        <!-- CAIXA DE LOGIN -->
+        <div class="painel-madeira">
+          <div class="cantoneira cantoneira-top-left"></div>
+          <div class="cantoneira cantoneira-top-right"></div>
+          <div class="cantoneira cantoneira-bottom-left"></div>
+          <div class="cantoneira cantoneira-bottom-right"></div>
+
+          <h3 class="titulo-caixa">Entrar no Salão</h3>
+          <p class="descricao-caixa">Informe seu identificador e palavra-passe para ingressar.</p>
+
+          <div id="login-msg" class="mensagem-status"></div>
+
+          <form onsubmit="tratarLogin(event)">
+            <!-- CAMPO: ID DO USUÁRIO -->
+            <div class="campo-grupo">
+              <label class="campo-label" for="login-id">ID do Usuário</label>
+              <input 
+                id="login-id" 
+                type="text" 
+                class="input-pergaminho" 
+                placeholder="Ex: lorde_aldor" 
+                autocomplete="username"
+              >
+            </div>
+
+            <!-- CAMPO: SENHA -->
+            <div class="campo-grupo">
+              <label class="campo-label" for="login-senha">Senha</label>
+              <input 
+                id="login-senha" 
+                type="password" 
+                class="input-pergaminho" 
+                placeholder="••••••••" 
+                autocomplete="current-password"
+              >
+            </div>
+
+            <button type="submit" class="btn-ferro" style="margin-top: 8px;">
+              Entrar
+            </button>
+          </form>
+        </div>
+
+        <!-- CAIXA DE CRIAÇÃO DE CONTA (SEM EMAIL) -->
+        <div class="painel-madeira">
+          <div class="cantoneira cantoneira-top-left"></div>
+          <div class="cantoneira cantoneira-top-right"></div>
+          <div class="cantoneira cantoneira-bottom-left"></div>
+          <div class="cantoneira cantoneira-bottom-right"></div>
+
+          <h3 class="titulo-caixa">Forjar Novo Vínculo</h3>
+          <p class="descricao-caixa">Crie seu registro no livro do salão. Nenhum e-mail é necessário.</p>
+
+          <div id="registro-msg" class="mensagem-status"></div>
+
+          <form onsubmit="tratarRegistro(event)">
+            <!-- CAMPO: ESCOLHA SEU ID -->
+            <div class="campo-grupo">
+              <label class="campo-label" for="reg-id">Escolha seu ID</label>
+              <input 
+                id="reg-id" 
+                type="text" 
+                class="input-pergaminho" 
+                placeholder="Ex: bardo_rodrigo" 
+                autocomplete="username"
+              >
+            </div>
+
+            <!-- CAMPO: SENHA -->
+            <div class="campo-grupo">
+              <label class="campo-label" for="reg-senha">Senha</label>
+              <input 
+                id="reg-senha" 
+                type="password" 
+                class="input-pergaminho" 
+                placeholder="••••••••" 
+                autocomplete="new-password"
+              >
+            </div>
+
+            <!-- CAMPO: REPETIR SENHA -->
+            <div class="campo-grupo">
+              <label class="campo-label" for="reg-senha-conf">Repetir Senha</label>
+              <input 
+                id="reg-senha-conf" 
+                type="password" 
+                class="input-pergaminho" 
+                placeholder="••••••••" 
+                autocomplete="new-password"
+              >
+            </div>
+
+            <button type="submit" class="btn-ferro" style="margin-top: 8px;">
+              Criar Conta
+            </button>
+          </form>
+        </div>
+
+      </div>
+    </section>
+  </main>
+
+  <!-- Rodapé -->
+  <footer>
+    Vínculo · RPG de Mesa Virtual · Etapa 1
+  </footer>
+
+  <!-- Lógica de Transição e Validação Local -->
+  <script>
+    function mostrarAutenticacao() {
+      document.getElementById('tela-home').style.display = 'none';
+      document.getElementById('tela-auth').style.display = 'block';
+      document.getElementById('btn-retornar').style.display = 'block';
+    }
+
+    function mostrarHome() {
+      document.getElementById('tela-home').style.display = 'block';
+      document.getElementById('tela-auth').style.display = 'none';
+      document.getElementById('btn-retornar').style.display = 'none';
+      limparMensagens();
+    }
+
+    function limparMensagens() {
+      const msgLogin = document.getElementById('login-msg');
+      const msgReg = document.getElementById('registro-msg');
+      msgLogin.style.display = 'none';
+      msgReg.style.display = 'none';
+    }
+
+    function tratarLogin(e) {
+      e.preventDefault();
+      const id = document.getElementById('login-id').value.trim();
+      const senha = document.getElementById('login-senha').value;
+      const msg = document.getElementById('login-msg');
+
+      if (!id || !senha) {
+        msg.className = 'mensagem-status status-erro';
+        msg.textContent = 'Preencha o ID do Usuário e a Senha para adentrar.';
+        msg.style.display = 'block';
+        return;
+      }
+
+      msg.className = 'mensagem-status status-sucesso';
+      msg.textContent = 'ID e Senha preenchidos com sucesso (Validação da Etapa 1 OK).';
+      msg.style.display = 'block';
+    }
+
+    function tratarRegistro(e) {
+      e.preventDefault();
+      const id = document.getElementById('reg-id').value.trim();
+      const senha = document.getElementById('reg-senha').value;
+      const senhaConf = document.getElementById('reg-senha-conf').value;
+      const msg = document.getElementById('registro-msg');
+
+      if (!id || !senha || !senhaConf) {
+        msg.className = 'mensagem-status status-erro';
+        msg.textContent = 'Todos os campos de registro devem ser preenchidos.';
+        msg.style.display = 'block';
+        return;
+      }
+
+      if (id.length < 3) {
+        msg.className = 'mensagem-status status-erro';
+        msg.textContent = 'O ID escolhido deve ter no mínimo 3 caracteres.';
+        msg.style.display = 'block';
+        return;
+      }
+
+      if (senha !== senhaConf) {
+        msg.className = 'mensagem-status status-erro';
+        msg.textContent = 'As senhas não coincidem. Verifique a digitação.';
+        msg.style.display = 'block';
+        return;
+      }
+
+      msg.className = 'mensagem-status status-sucesso';
+      msg.textContent = 'Vínculo registrado para "' + id + '"! Agora você pode efetuar o login.';
+      msg.style.display = 'block';
+
+      document.getElementById('login-id').value = id;
+    }
+  </script>
+</body>
+</html>
