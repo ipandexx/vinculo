@@ -1,0 +1,810 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Crônicas do Destino · Mesa do Vínculo</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎲</text></svg>">
+<style>
+/* =====================================================================
+   VÍNCULO · Crônicas do Destino — sistema visual único das 3 telas
+   Base: noite azul-grafite (prints Ficha/VTT) + molduras de bronze (print Mesa)
+   ===================================================================== */
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap');
+
+:root {
+  --noite:      #0a0e16;
+  --painel:     #10151f;
+  --painel-2:   #151c29;
+  --painel-3:   #1b2333;
+  --linha:      #242d3d;
+  --bronze:     #4d3b22;
+  --bronze-2:   #7a5d33;
+  --ouro:       #e9b44c;
+  --ouro-claro: #f6d58c;
+  --brasa:      #d9711c;
+  --texto:      #ebe5d6;
+  --texto-2:    #a3abbd;
+  --texto-3:    #6d7589;
+
+  --pv:   #ef4764;  --pm:   #3aa6e8;  --ca:   #e9b44c;
+  --rm:   #b77cf0;  --ini:  #3fd09a;  --desl: #8f96f7;
+
+  --heroi:   #4cb56a;
+  --monstro: #d9534f;
+  --npc:     #3bb8d8;
+
+  --f-titulo: 'Cinzel', 'Trajan Pro', Georgia, serif;
+  --f-texto:  'Plus Jakarta Sans', 'Segoe UI', system-ui, sans-serif;
+  --f-num:    'JetBrains Mono', ui-monospace, 'Cascadia Mono', monospace;
+
+  --r-1: 6px; --r-2: 10px; --r-3: 16px;
+  --sombra: 0 18px 40px -24px rgba(0,0,0,.8);
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; background: var(--noite); color: var(--texto); }
+body {
+  font: 400 15px/1.55 var(--f-texto);
+  min-height: 100vh;
+  background:
+    radial-gradient(1200px 500px at 50% -200px, rgba(233,180,76,.07), transparent 70%),
+    var(--noite);
+}
+img { max-width: 100%; display: block; }
+a { color: var(--ouro); text-decoration: none; }
+a:hover { color: var(--ouro-claro); }
+button, input, select, textarea { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--ouro); outline-offset: 2px; border-radius: 4px; }
+.num { font-family: var(--f-num); font-variant-numeric: tabular-nums; }
+.oculto { display: none !important; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+
+h1, h2, h3, .titulo { font-family: var(--f-titulo); font-weight: 600; letter-spacing: .02em; margin: 0; }
+h1 { font-size: 1.9rem; color: var(--ouro); line-height: 1.15; }
+h2 { font-size: 1.15rem; color: var(--ouro); }
+h3 { font-size: .95rem; color: var(--texto); }
+p { margin: 0; }
+.suave  { color: var(--texto-2); }
+.fraco  { color: var(--texto-3); font-size: .85rem; }
+
+/* ---------------------------------------------------------------- topo */
+.topo {
+  position: sticky; top: 0; z-index: 30;
+  background: linear-gradient(#0c111b, #0b0f18);
+  border-bottom: 1px solid var(--linha);
+}
+.topo-inner {
+  max-width: 1480px; margin: 0 auto; padding: 10px 24px;
+  display: flex; align-items: center; gap: 28px;
+}
+.marca {
+  font-family: var(--f-titulo); font-weight: 700; color: var(--ouro);
+  display: grid; line-height: 1.02; font-size: 1.12rem; text-align: center; letter-spacing: .04em;
+}
+.nav { display: flex; gap: 6px; flex: 1; }
+.nav a {
+  display: inline-flex; align-items: center; gap: 8px; padding: 10px 12px;
+  color: var(--texto-2); font-weight: 500; border-bottom: 2px solid transparent;
+}
+.nav a svg { width: 17px; height: 17px; }
+.nav a:hover { color: var(--texto); }
+.nav a[aria-current="page"] { color: var(--ouro); border-bottom-color: var(--ouro); }
+.papel {
+  display: inline-flex; border: 1px solid var(--linha); border-radius: var(--r-2); padding: 3px; background: var(--painel);
+}
+.papel span { padding: 5px 12px; border-radius: 7px; font-size: .86rem; color: var(--texto-3); }
+.papel span.ativo { background: var(--brasa); color: #1a0f04; font-weight: 700; }
+.usuario { display: flex; align-items: center; gap: 10px; color: var(--texto-2); font-size: .9rem; }
+
+/* ---------------------------------------------------------------- botões */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  padding: 9px 16px; border-radius: var(--r-2); border: 1px solid var(--linha);
+  background: var(--painel-2); color: var(--texto); font-weight: 600; font-size: .92rem;
+  cursor: pointer; transition: background .15s, border-color .15s, color .15s;
+}
+.btn svg { width: 16px; height: 16px; }
+.btn:hover:not(:disabled) { border-color: var(--bronze-2); background: var(--painel-3); }
+.btn:disabled { opacity: .45; cursor: not-allowed; }
+.btn-ouro   { border-color: var(--bronze-2); color: var(--ouro); background: rgba(233,180,76,.07); }
+.btn-brasa  { background: var(--brasa); border-color: var(--brasa); color: #1a0f04; }
+.btn-brasa:hover:not(:disabled) { background: #ec8430; border-color: #ec8430; }
+.btn-perigo { border-color: #6b2a2a; color: #ffb3b3; background: rgba(217,83,79,.14); }
+.btn-verde  { border-color: #28553a; color: #9be3b4; background: rgba(76,181,106,.1); }
+.btn-roxo   { border-color: #4d3a73; color: #d2b8ff; background: rgba(183,124,240,.1); }
+.btn-mini   { padding: 4px 10px; font-size: .8rem; border-radius: var(--r-1); }
+.btn-icone  { width: 30px; height: 30px; padding: 0; border-radius: var(--r-1); font-family: var(--f-num); font-size: 1rem; }
+.btn-d20    { flex-direction: column; gap: 0; line-height: 1.05; padding: 7px 14px; font-family: var(--f-titulo); }
+
+/* ---------------------------------------------------------------- painéis */
+.pagina { max-width: 1480px; margin: 0 auto; padding: 24px; }
+.painel {
+  background: var(--painel); border: 1px solid var(--linha); border-radius: var(--r-3); padding: 22px;
+}
+.painel.moldura { border-color: var(--bronze); box-shadow: inset 0 0 0 1px rgba(233,180,76,.04), var(--sombra); }
+.painel > header { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 16px; }
+.painel > header p { margin-top: 2px; }
+.divisor { border: 0; border-top: 1px solid var(--linha); margin: 18px 0; }
+.rotulo { font-family: var(--f-titulo); font-size: .82rem; color: var(--texto-2); letter-spacing: .06em; }
+
+/* ---------------------------------------------------------------- formulários */
+.campo { display: grid; gap: 6px; }
+.campo > span { font-size: .82rem; color: var(--texto-2); font-weight: 500; }
+.entrada, select.entrada, textarea.entrada {
+  width: 100%; padding: 10px 12px; border-radius: var(--r-2);
+  background: var(--noite); border: 1px solid var(--linha); color: var(--texto);
+}
+.entrada:focus { border-color: var(--bronze-2); outline: none; box-shadow: 0 0 0 3px rgba(233,180,76,.12); }
+.entrada-titulo {
+  font-family: var(--f-titulo); font-size: 1.7rem; color: var(--ouro); background: transparent;
+  border: 0; border-bottom: 1px dashed var(--bronze-2); border-radius: 0; padding: 2px 0; width: 100%;
+}
+.entrada-titulo:focus { outline: none; border-bottom-style: solid; }
+.linha-form { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); }
+
+/* ---------------------------------------------------------------- selos e chips */
+.selo {
+  display: inline-flex; align-items: center; gap: 6px; padding: 2px 9px; border-radius: 6px;
+  font: 600 .74rem/1.6 var(--f-texto); border: 1px solid var(--linha); color: var(--texto-2);
+}
+.selo.heroi   { color: #9be3b4; border-color: #28553a; background: rgba(76,181,106,.12); }
+.selo.monstro { color: #ffb3b3; border-color: #6b2a2a; background: rgba(217,83,79,.12); }
+.selo.npc     { color: #9fe3f3; border-color: #1f5566; background: rgba(59,184,216,.12); }
+.selo.mestre  { color: #1a0f04; background: var(--ouro); border-color: var(--ouro); }
+.selo.jogador { color: #9be3b4; border-color: #28553a; }
+.selo.observador { color: var(--texto-2); }
+.selo.permissao { font-family: var(--f-num); color: #7ee2a8; border-color: #235b3b; background: rgba(63,208,154,.08); }
+.selo.combate { color: #ffb3b3; border-color: #6b2a2a; background: rgba(217,83,79,.14); }
+.selo.exploracao { color: #9be3b4; border-color: #28553a; background: rgba(76,181,106,.1); }
+
+.chip {
+  display: inline-flex; align-items: center; gap: 6px; padding: 6px 11px; border-radius: 999px;
+  border: 1px solid var(--linha); background: var(--painel-2); color: var(--texto-2);
+  font-size: .84rem; cursor: pointer; user-select: none;
+}
+.chip:hover { border-color: var(--bronze-2); color: var(--texto); }
+.chip[aria-pressed="true"] { border-color: var(--ouro); color: var(--ouro); background: rgba(233,180,76,.1); }
+.chip:disabled { opacity: .35; cursor: not-allowed; }
+.chip small { font-family: var(--f-num); color: var(--texto-3); font-size: .72rem; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+
+/* ---------------------------------------------------------------- estatísticas (Ficha) */
+.stats { display: grid; grid-template-columns: repeat(6, minmax(0,1fr)); gap: 14px; }
+.stat {
+  border-radius: var(--r-2); padding: 14px 16px; border: 1px solid; min-height: 112px;
+  display: grid; grid-template-rows: auto auto 1fr; gap: 4px;
+}
+.stat .cab { display: flex; align-items: center; justify-content: space-between; font-size: .86rem; font-weight: 600; }
+.stat .cab > span { display: inline-flex; align-items: center; gap: 6px; }
+.stat .cab svg { width: 15px; height: 15px; flex: none; }
+.stat .cab small { font-family: var(--f-num); font-weight: 700; }
+.stat .valor { font: 700 1.9rem/1.1 var(--f-num); display: flex; align-items: center; justify-content: space-between; }
+.stat .detalhe { font-size: .76rem; color: var(--texto-2); align-self: end; }
+.stat .ctl { display: flex; gap: 6px; }
+.stat .barra { height: 5px; border-radius: 99px; background: rgba(255,255,255,.07); overflow: hidden; align-self: end; }
+.stat .barra i { display: block; height: 100%; border-radius: inherit; background: currentColor; transition: width .3s; }
+.stat.pv   { color: var(--pv);   border-color: rgba(239,71,100,.35);  background: rgba(239,71,100,.07); }
+.stat.pm   { color: var(--pm);   border-color: rgba(58,166,232,.35);  background: rgba(58,166,232,.07); }
+.stat.ca   { color: var(--ca);   border-color: rgba(233,180,76,.32);  background: rgba(233,180,76,.06); }
+.stat.rm   { color: var(--rm);   border-color: rgba(183,124,240,.35); background: rgba(183,124,240,.07); }
+.stat.ini  { color: var(--ini);  border-color: rgba(63,208,154,.3);   background: rgba(63,208,154,.06); }
+.stat.desl { color: var(--desl); border-color: rgba(143,150,247,.3);  background: rgba(143,150,247,.06); }
+.stat .valor, .stat .detalhe b { color: var(--texto); }
+
+/* ---------------------------------------------------------------- atributos */
+.atributos { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 14px; }
+.atributo {
+  border: 1px solid var(--linha); border-radius: var(--r-2); padding: 14px 16px; background: var(--painel-2);
+  display: grid; gap: 6px;
+}
+.atributo .cab { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.atributo .sigla { font-family: var(--f-titulo); font-weight: 700; color: var(--ouro); font-size: 1.05rem; }
+.atributo .sigla small { font-family: var(--f-texto); font-weight: 400; color: var(--texto-2); font-size: .82rem; }
+.atributo .ctl { display: flex; align-items: center; gap: 8px; }
+.atributo .ctl b { font: 700 1.25rem var(--f-num); min-width: 26px; text-align: center; }
+.atributo p { font-size: .8rem; color: var(--texto-2); }
+.atributo .limite { font: 500 .72rem var(--f-num); color: var(--texto-3); }
+
+.ataques { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px,1fr)); gap: 12px; }
+.ataque { border: 1px dashed var(--bronze); border-radius: var(--r-2); padding: 12px 14px; }
+.ataque b { display: block; font: 700 1.15rem var(--f-num); color: var(--texto); }
+.ataque span { font-size: .8rem; color: var(--texto-2); }
+
+/* ---------------------------------------------------------------- listas */
+.lista { display: grid; gap: 8px; }
+.item-lista {
+  display: flex; align-items: center; gap: 12px; justify-content: space-between;
+  border: 1px solid var(--linha); background: var(--painel-2); border-radius: var(--r-2); padding: 10px 14px;
+}
+.item-lista .info { min-width: 0; }
+.item-lista .info b { display: block; font-weight: 600; }
+.item-lista .info small { color: var(--texto-3); font-family: var(--f-num); font-size: .76rem; }
+.item-lista.bloqueado { opacity: .5; }
+
+table.tabela { width: 100%; border-collapse: collapse; font-size: .88rem; }
+.tabela th { text-align: left; font: 600 .74rem var(--f-titulo); color: var(--texto-3); letter-spacing: .06em; padding: 6px 8px; border-bottom: 1px solid var(--linha); }
+.tabela td { padding: 8px; border-bottom: 1px solid rgba(36,45,61,.6); vertical-align: middle; }
+.tabela tr:last-child td { border-bottom: 0; }
+.rolagem-tabela { overflow-x: auto; }
+
+/* ---------------------------------------------------------------- vazio */
+.vazio {
+  border: 1px dashed var(--bronze); border-radius: var(--r-3); padding: 28px; text-align: center;
+  display: grid; gap: 10px; justify-items: center; color: var(--texto-2);
+}
+.vazio h3 { font-family: var(--f-titulo); color: var(--ouro); }
+
+/* ---------------------------------------------------------------- diálogos */
+dialog {
+  border: 1px solid var(--bronze); background: var(--painel); color: var(--texto);
+  border-radius: var(--r-3); padding: 0; width: min(560px, 94vw); box-shadow: var(--sombra);
+}
+dialog::backdrop { background: rgba(4,6,10,.72); }
+dialog form, dialog .corpo { padding: 22px; display: grid; gap: 16px; }
+dialog .acoes { display: flex; justify-content: flex-end; gap: 10px; }
+dialog.largo { width: min(920px, 96vw); }
+
+/* ---------------------------------------------------------------- avisos */
+.avisos { position: fixed; right: 20px; bottom: 20px; display: grid; gap: 10px; z-index: 90; max-width: min(420px, 92vw); }
+.aviso {
+  background: var(--painel-2); border: 1px solid var(--linha); border-left: 3px solid var(--ouro);
+  padding: 12px 16px; border-radius: var(--r-2); box-shadow: var(--sombra); font-size: .9rem;
+  animation: entra .2s ease-out;
+}
+.aviso.erro { border-left-color: var(--pv); }
+.aviso.ok { border-left-color: var(--ini); }
+@keyframes entra { from { transform: translateY(8px); opacity: 0; } }
+
+/* ---------------------------------------------------------------- INÍCIO */
+.inicio { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 22px; align-items: start; }
+.saudacao { display: flex; align-items: end; justify-content: space-between; gap: 20px; margin-bottom: 22px; }
+.saudacao h1 { font-size: 2.3rem; }
+.mesa {
+  display: grid; grid-template-columns: 1fr auto; gap: 6px 18px; align-items: center;
+  padding: 18px 20px; border: 1px solid var(--linha); border-radius: var(--r-2); background: var(--painel-2);
+  position: relative;
+}
+.mesa::before { content: ''; position: absolute; left: 0; top: 14px; bottom: 14px; width: 3px; border-radius: 3px; background: var(--bronze-2); }
+.mesa.papel-mestre::before { background: var(--ouro); }
+.mesa h3 { font-size: 1.1rem; color: var(--texto); }
+.mesa .meta { display: flex; flex-wrap: wrap; gap: 8px 14px; font-size: .84rem; color: var(--texto-2); align-items: center; }
+.mesa .acoes { grid-row: span 2; display: flex; gap: 8px; }
+.codigo { font: 700 .86rem var(--f-num); letter-spacing: .14em; color: var(--ouro-claro); background: var(--noite); padding: 2px 8px; border-radius: 6px; border: 1px solid var(--bronze); }
+.herois { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 14px; }
+.heroi-card {
+  display: grid; grid-template-columns: 56px 1fr; gap: 12px; align-items: center;
+  padding: 14px; border-radius: var(--r-2); border: 1px solid var(--linha); background: var(--painel-2); color: var(--texto);
+}
+.heroi-card:hover { border-color: var(--bronze-2); color: var(--texto); }
+.heroi-card .barras { grid-column: 1 / -1; display: grid; gap: 5px; }
+.mini-barra { height: 4px; border-radius: 99px; background: rgba(255,255,255,.06); overflow: hidden; }
+.mini-barra i { display: block; height: 100%; }
+.heroi-card.novo { border-style: dashed; border-color: var(--bronze); color: var(--ouro); grid-template-columns: 56px 1fr; }
+
+.retrato {
+  width: 56px; height: 56px; border-radius: 12px; border: 1px solid var(--bronze-2); object-fit: cover;
+  background: linear-gradient(145deg, #2a2114, #120e08); display: grid; place-items: center;
+  font: 700 1.2rem var(--f-titulo); color: var(--ouro);
+}
+.retrato.grande { width: 84px; height: 84px; border-radius: 14px; font-size: 1.7rem; }
+
+/* ---------------------------------------------------------------- FICHA */
+.ficha { display: grid; gap: 22px; }
+.ficha-cab { display: grid; gap: 20px; }
+.ficha-id { display: flex; flex-wrap: wrap; align-items: center; gap: 18px 22px; }
+.ficha-id .nome { flex: 1; min-width: 240px; display: grid; gap: 4px; }
+.ficha-id .nome h1 { border-bottom: 1px dashed var(--bronze-2); padding-bottom: 2px; }
+.ficha-id .sub { display: flex; flex-wrap: wrap; gap: 6px 12px; font-size: .88rem; color: var(--texto-2); }
+.ficha-id .sub .classe { color: var(--ouro); font-weight: 600; }
+.nivel-box { display: flex; align-items: center; gap: 12px; border: 1px solid var(--linha); border-radius: var(--r-2); padding: 8px 14px; }
+.nivel-box b { font: 700 1.3rem var(--f-num); color: var(--ouro); }
+.xp { display: grid; gap: 6px; }
+.xp .mini-barra { height: 6px; }
+.ficha-corpo { display: grid; grid-template-columns: minmax(0, 1fr) 380px; gap: 22px; align-items: start; }
+.ficha-lateral { display: grid; gap: 22px; }
+.coluna { display: grid; gap: 22px; }
+.escolha-pericias { display: grid; gap: 16px; }
+.contador { font: 600 .8rem var(--f-num); color: var(--texto-3); }
+.contador.ok { color: var(--ini); }
+.habilidade { border-left: 2px solid var(--bronze); padding: 8px 12px; display: grid; gap: 3px; }
+.habilidade.liberada { border-left-color: var(--ouro); }
+.habilidade .cab { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; }
+.habilidade .cab b { font-weight: 600; }
+.habilidade p { font-size: .84rem; color: var(--texto-2); }
+.habilidade small { font-family: var(--f-num); color: var(--texto-3); font-size: .74rem; }
+.condicoes { display: flex; flex-wrap: wrap; gap: 8px; }
+.morte { display: flex; gap: 6px; }
+.morte i { width: 14px; height: 14px; border-radius: 50%; border: 1px solid var(--linha); }
+.morte i.s { background: var(--ini); border-color: var(--ini); }
+.morte i.f { background: var(--pv); border-color: var(--pv); }
+.rodape-acao { position: sticky; bottom: 0; background: linear-gradient(transparent, var(--noite) 40%); padding: 18px 0 6px; display: flex; justify-content: flex-end; gap: 12px; align-items: center; }
+
+/* ---------------------------------------------------------------- BATALHA */
+.mesa-cab {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 14px 18px; justify-content: space-between;
+  padding: 14px 18px; border: 1px solid var(--bronze); border-radius: var(--r-2); background: var(--painel);
+}
+.mesa-cab .titulo-mesa { display: flex; align-items: center; gap: 14px; }
+.mesa-cab h1 { font-size: 1.4rem; }
+.mesa-cab .botoes { display: flex; flex-wrap: wrap; gap: 8px; }
+.vazio svg, .usuario svg { width: 16px; height: 16px; }
+.sec-cab svg, .palco-cab svg { width: 16px; height: 16px; }
+.log-item.ataque .destaque { color: #ffb3b3; }
+.arena { display: grid; grid-template-columns: 300px minmax(0,1fr) 330px; gap: 16px; margin-top: 16px; align-items: stretch; }
+.arena > section { background: var(--painel); border: 1px solid var(--bronze); border-radius: var(--r-2); display: flex; flex-direction: column; min-height: 0; }
+.arena .sec-cab { padding: 14px 16px; border-bottom: 1px solid var(--linha); display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.arena .sec-cab h2 { font-size: .98rem; }
+.arena .sec-corpo { padding: 12px; overflow-y: auto; flex: 1; min-height: 0; }
+
+.combatente {
+  display: grid; grid-template-columns: auto 1fr auto; gap: 4px 10px; align-items: center;
+  padding: 10px 12px; border-radius: var(--r-2); border: 1px solid var(--linha); background: var(--painel-2);
+  cursor: pointer; margin-bottom: 8px; text-align: left; width: 100%; color: var(--texto);
+}
+.combatente:hover { border-color: var(--bronze-2); }
+.combatente.selecionado { border-color: var(--ouro); background: rgba(233,180,76,.07); }
+.combatente.turno { box-shadow: inset 3px 0 0 var(--brasa); }
+.combatente.caido { opacity: .5; }
+.combatente .ordem { font: 600 .74rem var(--f-num); color: var(--texto-3); }
+.combatente .nome { font-family: var(--f-titulo); font-weight: 600; font-size: .92rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.combatente .ini { font: 700 .8rem var(--f-num); color: var(--ouro); border: 1px solid var(--linha); border-radius: 6px; padding: 1px 7px; }
+.combatente .vida { grid-column: 1 / -1; display: grid; grid-template-columns: auto 1fr auto; gap: 10px; align-items: center; font: 500 .76rem var(--f-num); }
+.combatente .vida .pv { color: var(--pv); }
+.combatente .vida .ca { color: var(--texto-2); }
+.combatente .mini-barra i { background: var(--heroi); }
+.combatente.monstro .mini-barra i { background: var(--monstro); }
+.combatente.npc .mini-barra i { background: var(--npc); }
+.combatente .conds { grid-column: 1 / -1; font-size: .72rem; color: var(--rm); }
+
+.palco-cab { padding: 12px 16px; border-bottom: 1px solid var(--linha); display: flex; align-items: center; flex-wrap: wrap; gap: 8px 16px; font-size: .9rem; min-height: 50px; }
+.palco-cab b { font-family: var(--f-titulo); }
+.palco-cab .pv { color: var(--pv); font-family: var(--f-num); }
+.palco-cab .pm { color: var(--pm); font-family: var(--f-num); }
+.palco-cab .dica { margin-left: auto; color: var(--texto-3); font-size: .82rem; }
+.palco { flex: 1; min-height: 420px; padding: 14px; display: grid; place-items: center; overflow: auto; }
+.mapa {
+  position: relative; display: grid; border: 1px solid var(--bronze); border-radius: 6px; overflow: hidden;
+  background-color: #141a22; background-size: cover; background-position: center;
+  background-image:
+    radial-gradient(ellipse at center, rgba(233,180,76,.05), transparent 60%),
+    repeating-linear-gradient(45deg, rgba(255,255,255,.012) 0 6px, transparent 6px 12px);
+}
+.mapa.com-imagem { background-image: var(--mapa); }
+.celula { border-right: 1px solid rgba(233,180,76,.09); border-bottom: 1px solid rgba(233,180,76,.09); cursor: pointer; }
+.celula:hover { background: rgba(233,180,76,.1); }
+.celula.alcance { background: rgba(63,208,154,.08); }
+.mapa.sem-grade .celula { border-color: transparent; }
+.token {
+  position: absolute; display: grid; place-items: center; border-radius: 50%;
+  font: 700 .72rem var(--f-titulo); letter-spacing: .02em; color: #1a130a; cursor: pointer;
+  border: 2px solid var(--heroi); background: radial-gradient(circle at 35% 30%, #5b3d1e, #2a1a0c); color: var(--ouro-claro);
+  transition: left .25s ease, top .25s ease; z-index: 2;
+}
+.token.monstro { border-color: var(--monstro); background: radial-gradient(circle at 35% 30%, #6a1f24, #2b0c0e); color: #ffd7d7; }
+.token.npc { border-color: var(--npc); background: radial-gradient(circle at 35% 30%, #194857, #081c23); color: #d4f5ff; }
+.token img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+.token .hp { position: absolute; left: 8%; right: 8%; bottom: -7px; height: 4px; background: rgba(0,0,0,.6); border-radius: 3px; overflow: hidden; }
+.token .hp i { display: block; height: 100%; background: var(--pv); }
+.token.selecionado { box-shadow: 0 0 0 3px var(--ouro); }
+.token.turno { box-shadow: 0 0 0 3px var(--brasa), 0 0 18px rgba(217,113,28,.55); }
+.token.alvo:hover { box-shadow: 0 0 0 3px var(--pv), 0 0 16px rgba(239,71,100,.6); }
+.token.caido { filter: grayscale(1); opacity: .55; }
+.mapa.modo-alvo .token { cursor: crosshair; }
+.mapa.modo-posicionar .celula { cursor: copy; }
+
+.acoes-combate { display: grid; grid-template-columns: repeat(3, 1fr) auto; gap: 10px; padding: 12px 14px; border-top: 1px solid var(--linha); }
+.acao-combate {
+  border: 1px solid #4a2626; background: rgba(217,83,79,.07); color: #e7b8b8; border-radius: var(--r-2);
+  padding: 10px; font: 600 .82rem var(--f-titulo); letter-spacing: .03em; cursor: pointer; display: grid; justify-items: center; gap: 2px;
+}
+.acao-combate small { font: 500 .72rem var(--f-num); color: var(--texto-3); }
+.acao-combate:hover:not(:disabled) { background: rgba(217,83,79,.16); border-color: #7a3535; }
+.acao-combate[aria-pressed="true"] { border-color: var(--pv); background: rgba(239,71,100,.2); color: #fff; }
+.acao-combate:disabled { opacity: .35; cursor: not-allowed; }
+.opcoes-combate { display: flex; flex-wrap: wrap; gap: 8px; padding: 0 14px 12px; align-items: center; font-size: .82rem; color: var(--texto-2); }
+.opcoes-combate select { padding: 5px 8px; border-radius: 6px; background: var(--noite); border: 1px solid var(--linha); }
+
+.log { display: grid; gap: 10px; align-content: start; }
+.log-item { border-left: 2px solid var(--linha); padding: 2px 0 2px 10px; font-size: .86rem; }
+.log-item header { display: flex; justify-content: space-between; gap: 8px; font: 600 .72rem var(--f-titulo); color: var(--ouro); letter-spacing: .04em; }
+.log-item header time { font-family: var(--f-num); color: var(--texto-3); font-weight: 500; }
+.log-item p { color: var(--texto); word-wrap: break-word; }
+.log-item.ataque { border-left-color: var(--pv); }
+.log-item.rolagem { border-left-color: var(--ouro); }
+.log-item.chat { border-left-color: var(--pm); }
+.log-item.cura { border-left-color: var(--ini); }
+.log-item.sistema p, .log-item.presenca p { color: var(--texto-2); }
+.log-item .destaque { font-family: var(--f-num); font-weight: 700; color: var(--ouro-claro); }
+.chat-form { display: flex; gap: 8px; padding: 12px; border-top: 1px solid var(--linha); }
+
+.gaveta {
+  position: fixed; top: 0; right: 0; bottom: 0; width: min(520px, 96vw); z-index: 60;
+  background: var(--painel); border-left: 1px solid var(--bronze); box-shadow: var(--sombra);
+  display: flex; flex-direction: column; transform: translateX(100%); transition: transform .25s ease;
+}
+.gaveta.aberta { transform: none; }
+.gaveta header { padding: 16px 20px; border-bottom: 1px solid var(--linha); display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.gaveta .corpo { padding: 16px 20px; overflow-y: auto; display: grid; gap: 12px; align-content: start; }
+.abas { display: flex; gap: 6px; }
+.monstro-linha { display: grid; grid-template-columns: 1fr auto; gap: 4px 12px; padding: 10px 12px; border: 1px solid var(--linha); border-radius: var(--r-2); background: var(--painel-2); }
+.monstro-linha small { font-family: var(--f-num); color: var(--texto-3); font-size: .74rem; }
+.monstro-linha p { grid-column: 1 / -1; font-size: .82rem; color: var(--texto-2); }
+
+/* ---------------------------------------------------------------- responsivo */
+@media (max-width: 1280px) {
+  .arena { grid-template-columns: 260px minmax(0,1fr); }
+  .arena > .historico { grid-column: 1 / -1; max-height: 420px; }
+  .stats { grid-template-columns: repeat(3, minmax(0,1fr)); }
+}
+@media (max-width: 1080px) {
+  .ficha-corpo, .inicio { grid-template-columns: 1fr; }
+  .topo-inner { flex-wrap: wrap; gap: 12px 18px; }
+  .nav { order: 3; flex-basis: 100%; overflow-x: auto; }
+}
+@media (max-width: 760px) {
+  .pagina { padding: 14px; }
+  .arena { grid-template-columns: 1fr; }
+  .arena > section { max-height: none; }
+  .stats { grid-template-columns: repeat(2, minmax(0,1fr)); }
+  .atributos { grid-template-columns: repeat(2, minmax(0,1fr)); }
+  .acoes-combate { grid-template-columns: 1fr 1fr; }
+  .marca { font-size: .95rem; }
+  .papel { display: none; }
+  .saudacao { flex-direction: column; align-items: start; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition: none !important; animation: none !important; }
+}
+
+h2 svg { width: 18px; height: 18px; vertical-align: -3px; }
+.acao-combate svg { width: 18px; height: 18px; }
+.item-lista:hover { border-color: var(--bronze-2); }
+.arena { height: calc(100vh - 190px); min-height: 620px; }
+.arena > section { overflow: hidden; }
+@media (max-width: 1280px) { .arena { height: auto; } .arena > #b-lista { max-height: 640px; } }
+.acesso { max-width: 440px; margin: 6vh auto 0; display: grid; gap: 10px; }
+.form-acesso { display: grid; gap: 14px; margin-top: 8px; }
+.troca { color: var(--texto-2); font-size: .9rem; }
+.link { background: none; border: 0; color: var(--ouro); cursor: pointer; padding: 0; font-weight: 600; }
+.link:hover { color: var(--ouro-claro); }
+.codigo-in { text-transform: uppercase; letter-spacing: .2em; font-family: var(--f-num); }
+.mesa-corpo { display: grid; grid-template-columns: 320px minmax(0,1fr); gap: 16px; margin-top: 16px; }
+.historico-mesa { background: var(--painel); border: 1px solid var(--bronze); border-radius: var(--r-2); display: flex; flex-direction: column; height: calc(100vh - 230px); min-height: 460px; }
+.historico-mesa .sec-cab { padding: 14px 16px; border-bottom: 1px solid var(--linha); }
+.historico-mesa .sec-corpo { padding: 14px; overflow-y: auto; flex: 1; }
+.dados { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 18px; }
+.coluna { display: grid; gap: 22px; align-content: start; }
+@media (max-width: 760px) { .mesa-corpo { grid-template-columns: 1fr; } .historico-mesa { height: 70vh; } .acesso { margin-top: 2vh; } }
+
+</style>
+</head>
+<body>
+<header class="topo" id="topo"></header>
+<main class="pagina" id="app"><p class="fraco">Carregando…</p></main>
+<script type="module">
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+
+// Chave PUBLICÁVEL (pode ficar no navegador). Nunca coloque a secret key aqui.
+const SUPABASE_URL = 'https://grrgwxcagvvafdmzsmro.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_oB4NBGpLlz7VPU2g7MhT0Q_Na7z5rO8';
+const sb = createClient(SUPABASE_URL, SUPABASE_KEY, { auth: { persistSession: true, autoRefreshToken: true } });
+
+const $ = (s, r = document) => r.querySelector(s);
+const app = $('#app');
+const esc = (v) => String(v ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const hora = (iso) => new Date(iso).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+
+function aviso(msg, tipo = '') {
+  let c = $('.avisos'); if (!c) { c = document.createElement('div'); c.className = 'avisos'; c.setAttribute('role', 'status'); document.body.append(c); }
+  const el = document.createElement('div'); el.className = `aviso ${tipo}`; el.textContent = msg; c.append(el);
+  setTimeout(() => el.remove(), tipo === 'erro' ? 6500 : 3800);
+}
+const TRADUZ = [
+  [/Invalid login credentials/i, 'E-mail ou senha incorretos.'],
+  [/User already registered/i, 'Já existe uma conta com esse e-mail. Use "Entrar".'],
+  [/Password should be at least/i, 'A senha precisa de pelo menos 6 caracteres.'],
+  [/Database error saving new user/i, 'Esse nome de jogador já está em uso. Escolha outro.'],
+  [/duplicate key.*username/i, 'Esse nome de jogador já está em uso.'],
+  [/infinite recursion/i, 'O banco recusou a entrada na mesa (regra de acesso da tabela mesa_membros). Rode o ajuste SQL uma vez no Supabase.'],
+  [/rate limit/i, 'Muitas tentativas seguidas. Espere um minuto e tente de novo.'],
+  [/Failed to fetch|NetworkError/i, 'Sem conexão com o servidor. Verifique sua internet.'],
+];
+const erroMsg = (e) => { const m = String(e?.message || e || 'Erro inesperado.'); for (const [r, t] of TRADUZ) if (r.test(m)) return t; return m; };
+async function q(p) { const { data, error } = await p; if (error) throw error; return data; }
+async function tentar(fn) { try { return await fn(); } catch (e) { aviso(erroMsg(e), 'erro'); return undefined; } }
+
+let eu = null;        // { id, email, username }
+let mesaAtual = null; // { id, codigo, mestre_id, papel }
+let canal = null, poll = null;
+
+// ------------------------------------------------------------ topo
+function topo() {
+  $('#topo').innerHTML = `
+    <div class="topo-inner">
+      <div class="marca"><span>Crônicas</span><span>do</span><span>Destino</span></div>
+      <div class="nav"></div>
+      ${eu ? `<div class="usuario"><span>@${esc(eu.username)}</span><button class="btn btn-mini" id="sair">Sair</button></div>` : ''}
+    </div>`;
+  $('#sair')?.addEventListener('click', sair);
+}
+
+// ------------------------------------------------------------ login / cadastro
+function telaLogin(modo = 'entrar') {
+  eu = null; topo();
+  const cad = modo === 'criar';
+  app.innerHTML = `
+    <section class="painel moldura acesso">
+      <h1>${cad ? 'Criar conta' : 'Entrar'}</h1>
+      <p class="suave">${cad ? 'Seu nome de jogador aparece para a mesa.' : 'Entre para abrir suas mesas.'}</p>
+      <form id="f-acesso" class="form-acesso">
+        ${cad ? `<label class="campo"><span>Nome de jogador</span>
+          <input class="entrada" name="username" required minlength="3" maxlength="20" pattern="[a-z0-9_]+" autocomplete="username"
+                 placeholder="ex.: joe_berserk" title="3 a 20 caracteres: letras minúsculas, números e _"></label>` : ''}
+        <label class="campo"><span>E-mail</span><input class="entrada" name="email" type="email" required autocomplete="email"></label>
+        <label class="campo"><span>Senha</span><input class="entrada" name="senha" type="password" required minlength="6"
+               autocomplete="${cad ? 'new-password' : 'current-password'}"></label>
+        <button class="btn btn-brasa" type="submit">${cad ? 'Criar conta e entrar' : 'Entrar'}</button>
+      </form>
+      <p class="troca">${cad ? 'Já tem conta?' : 'Primeira vez aqui?'}
+        <button class="link" id="trocar">${cad ? 'Entrar' : 'Criar conta'}</button></p>
+    </section>`;
+  $('#trocar').onclick = () => telaLogin(cad ? 'entrar' : 'criar');
+  $('#f-acesso').addEventListener('submit', async (ev) => {
+    ev.preventDefault();
+    const f = new FormData(ev.target), b = ev.target.querySelector('button');
+    b.disabled = true; b.textContent = 'Aguarde…';
+    await tentar(async () => {
+      if (cad) {
+        const username = String(f.get('username')).trim().toLowerCase();
+        const { data, error } = await sb.auth.signUp({ email: f.get('email'), password: f.get('senha'), options: { data: { username } } });
+        if (error) throw error;
+        if (!data.session) { aviso('Conta criada. Confirme pelo link enviado ao seu e-mail e depois entre.', 'ok'); telaLogin('entrar'); return; }
+      } else {
+        const { error } = await sb.auth.signInWithPassword({ email: f.get('email'), password: f.get('senha') });
+        if (error) throw error;
+      }
+      await iniciar();
+    });
+    if (document.body.contains(b)) { b.disabled = false; b.textContent = cad ? 'Criar conta e entrar' : 'Entrar'; }
+  });
+}
+
+async function sair() {
+  pararMesa();
+  await sb.auth.signOut();
+  mesaAtual = null;
+  aviso('Você saiu.', 'ok');
+  telaLogin();
+}
+
+// ------------------------------------------------------------ perfil
+async function carregarPerfil(user) {
+  let p = await q(sb.from('profiles').select('id,username').eq('id', user.id).maybeSingle());
+  if (!p) {
+    const username = user.user_metadata?.username || (user.email || 'jogador').split('@')[0].replace(/[^a-z0-9_]/gi, '').toLowerCase();
+    p = (await q(sb.from('profiles').insert({ id: user.id, username }).select().single()));
+  }
+  eu = { id: user.id, email: user.email, username: p.username };
+}
+
+// ------------------------------------------------------------ início (mesas)
+async function telaInicio() {
+  pararMesa(); mesaAtual = null; topo();
+  app.innerHTML = '<p class="fraco">Carregando mesas…</p>';
+  const membros = await tentar(() => q(sb.from('mesa_membros').select('papel, mesa_id').eq('user_id', eu.id))) ?? [];
+  const ids = [...new Set(membros.map((m) => m.mesa_id))];
+  const mesas = ids.length ? (await tentar(() => q(sb.from('mesas').select('*').in('id', ids).order('criada_em', { ascending: false }))) ?? []) : [];
+  const papel = Object.fromEntries(membros.map((m) => [m.mesa_id, m.papel]));
+  const donos = mesas.length ? await tentar(() => q(sb.from('profiles').select('id,username').in('id', [...new Set(mesas.map((m) => m.mestre_id))]))) ?? [] : [];
+  const nome = Object.fromEntries(donos.map((d) => [d.id, d.username]));
+
+  app.innerHTML = `
+    <section class="saudacao">
+      <div><h1>Olá, ${esc(eu.username)}</h1><p class="suave">Entre numa mesa com o código do Mestre ou crie a sua.</p></div>
+    </section>
+    <div class="inicio">
+      <section class="painel moldura">
+        <header><h2>Suas mesas</h2></header>
+        <div class="lista">${mesas.length ? mesas.map((m) => `
+          <article class="mesa ${papel[m.id] === 'mestre' ? 'papel-mestre' : ''}">
+            <h3>Mesa ${esc(m.codigo)}</h3>
+            <div class="acoes"><button class="btn btn-brasa" data-abrir="${m.id}">Abrir mesa</button></div>
+            <div class="meta"><span class="selo ${papel[m.id]}">${papel[m.id] === 'mestre' ? 'Mestre' : papel[m.id] === 'observador' ? 'Observador' : 'Jogador'}</span>
+              <span>Mestre: @${esc(nome[m.mestre_id] || '—')}</span>
+              <span>Código <span class="codigo">${esc(m.codigo)}</span></span></div>
+          </article>`).join('') : `<div class="vazio"><h3>Nenhuma mesa ainda</h3><p>Use o código que o Mestre te passou, ou crie uma mesa.</p></div>`}
+        </div>
+      </section>
+      <aside class="coluna">
+        <section class="painel moldura">
+          <header><h2>Entrar numa mesa</h2></header>
+          <form id="f-entrar" class="form-acesso">
+            <label class="campo"><span>Código da mesa</span>
+              <input class="entrada codigo-in" name="codigo" required minlength="4" maxlength="12" autocomplete="off" placeholder="64LW5Z"></label>
+            <label class="campo"><span>Participar como</span>
+              <select class="entrada" name="papel"><option value="jogador">Jogador</option><option value="observador">Observador</option></select></label>
+            <button class="btn btn-brasa">Entrar na mesa</button>
+          </form>
+        </section>
+        <section class="painel">
+          <header><h2>Criar mesa</h2></header>
+          <p class="suave" style="margin-bottom:14px">Você vira o Mestre e recebe um código para chamar os jogadores.</p>
+          <button class="btn btn-ouro" id="criar">Criar mesa</button>
+        </section>
+        <section class="painel">
+          <header><h2>Seu perfil</h2></header>
+          <p>@${esc(eu.username)}</p><p class="fraco">${esc(eu.email)}</p>
+        </section>
+      </aside>
+    </div>`;
+
+  app.querySelectorAll('[data-abrir]').forEach((b) => (b.onclick = () => abrirMesa(b.dataset.abrir)));
+  $('#criar').onclick = criarMesa;
+  $('#f-entrar').addEventListener('submit', async (ev) => {
+    ev.preventDefault();
+    const f = new FormData(ev.target);
+    await tentar(() => entrarMesa(String(f.get('codigo')).trim().toUpperCase(), f.get('papel')));
+  });
+}
+
+function gerarCodigo() {
+  const abc = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  const r = crypto.getRandomValues(new Uint8Array(6));
+  return [...r].map((n) => abc[n % abc.length]).join('');
+}
+
+async function criarMesa() {
+  await tentar(async () => {
+    const m = await q(sb.from('mesas').insert({ codigo: gerarCodigo(), mestre_id: eu.id }).select().single());
+    await q(sb.from('mesa_membros').insert({ mesa_id: m.id, user_id: eu.id, papel: 'mestre' }));
+    await evento(m.id, 'sistema', `@${eu.username} abriu a mesa ${m.codigo}.`);
+    aviso(`Mesa criada. Código: ${m.codigo}`, 'ok');
+    await abrirMesa(m.id);
+  });
+}
+
+async function entrarMesa(codigo, papel) {
+  const m = await q(sb.from('mesas').select('*').eq('codigo', codigo).maybeSingle());
+  if (!m) throw new Error('Nenhuma mesa com esse código. Confira com o Mestre.');
+  if (!m.ativa) throw new Error('Essa mesa está encerrada.');
+  const ja = await q(sb.from('mesa_membros').select('id').eq('mesa_id', m.id).eq('user_id', eu.id).maybeSingle());
+  if (!ja) {
+    await q(sb.from('mesa_membros').insert({ mesa_id: m.id, user_id: eu.id, papel }));
+    await evento(m.id, 'presenca', `@${eu.username} entrou como ${papel}.`);
+  }
+  await abrirMesa(m.id);
+}
+
+// ------------------------------------------------------------ mesa (chat + rolagens)
+function evento(mesa_id, tipo, texto, extra = {}) {
+  return q(sb.from('mesa_eventos').insert({ mesa_id, user_id: eu.id, nome_autor: eu.username, tipo, texto, ...extra }));
+}
+
+function rolar(expr) {
+  const e = expr.toLowerCase().replace(/\s+/g, '');
+  if (!/^[+-]?(\d*d\d+|\d+)([+-](\d*d\d+|\d+))*$/.test(e)) throw new Error('Rolagem inválida. Exemplos: d20, 2d6+3, 1d8+1d6-1');
+  let total = 0; const partes = [];
+  for (const [, s, t] of e.matchAll(/([+-]?)(\d*d\d+|\d+)/g)) {
+    const sin = s === '-' ? -1 : 1;
+    if (t.includes('d')) {
+      const [a, b] = t.split('d'); const n = Number(a || 1), f = Number(b);
+      if (n < 1 || n > 100 || f < 2 || f > 1000) throw new Error('Use de 1 a 100 dados, de 2 a 1000 faces.');
+      const rs = [...crypto.getRandomValues(new Uint32Array(n))].map((x) => 1 + (x % f));
+      total += sin * rs.reduce((x, y) => x + y, 0); partes.push(`${s}[${rs.join(',')}]`);
+    } else { total += sin * Number(t); partes.push(`${s}${t}`); }
+  }
+  return { total, detalhe: partes.join(' ') };
+}
+
+function itemLog(r) {
+  const cls = r.tipo === 'rolagem' ? 'rolagem' : r.tipo === 'chat' ? 'chat' : 'sistema';
+  const corpo = r.tipo === 'rolagem'
+    ? `rolou ${esc(r.formula)}${r.texto ? ` (${esc(r.texto)})` : ''} = <span class="destaque">${r.resultado}</span> <span class="fraco">${esc(r.detalhe || '')}</span>`
+    : esc(r.texto);
+  return `<article class="log-item ${cls}" data-id="${r.id}"><header><span>${r.tipo === 'chat' || r.tipo === 'rolagem' ? '@' + esc(r.nome_autor) : 'Mesa do Vínculo'}</span><time>${hora(r.criado_em)}</time></header><p>${corpo}</p></article>`;
+}
+
+async function abrirMesa(id) {
+  pararMesa();
+  const m = await q(sb.from('mesas').select('*').eq('id', id).single());
+  const membros = await q(sb.from('mesa_membros').select('user_id,papel').eq('mesa_id', id));
+  const perfis = membros.length ? await q(sb.from('profiles').select('id,username').in('id', membros.map((x) => x.user_id))) : [];
+  const nome = Object.fromEntries(perfis.map((p) => [p.id, p.username]));
+  const meu = membros.find((x) => x.user_id === eu.id)?.papel || 'observador';
+  mesaAtual = { ...m, papel: meu };
+  const obs = meu === 'observador';
+
+  app.innerHTML = `
+    <header class="mesa-cab">
+      <div class="titulo-mesa">
+        <button class="btn btn-mini" id="voltar">Voltar</button>
+        <div><h1>Mesa ${esc(m.codigo)}</h1><p class="fraco">Mestre @${esc(nome[m.mestre_id] || '—')}. Você está como ${esc(meu)}.</p></div>
+      </div>
+      <div class="botoes">
+        <span class="codigo" title="Passe este código aos jogadores">${esc(m.codigo)}</span>
+        ${meu !== 'mestre' ? '<button class="btn btn-perigo btn-mini" id="deixar">Deixar mesa</button>' : ''}
+      </div>
+    </header>
+    <div class="mesa-corpo">
+      <section class="painel">
+        <header><h2>Na mesa</h2><span class="fraco">${membros.length}</span></header>
+        <div class="lista">${membros.map((x) => `
+          <div class="item-lista"><div class="info"><b>@${esc(nome[x.user_id] || '?')}</b></div>
+            <span class="selo ${x.papel}">${x.papel === 'mestre' ? 'Mestre' : x.papel === 'observador' ? 'Observador' : 'Jogador'}</span></div>`).join('')}</div>
+        ${obs ? '' : `<div class="dados">${['d4', 'd6', 'd8', 'd10', 'd12', 'd20'].map((d) => `<button class="btn btn-ouro" data-dado="${d}">${d}</button>`).join('')}</div>`}
+      </section>
+      <section class="historico-mesa">
+        <div class="sec-cab"><h2>Histórico e rolagens</h2></div>
+        <div class="sec-corpo" id="rolo"><div class="log" id="log"></div></div>
+        <form class="chat-form" id="chat">
+          <input class="entrada" name="t" maxlength="500" autocomplete="off" ${obs ? 'disabled placeholder="Observadores só acompanham a mesa"' : 'placeholder="Fale com a mesa ou role: /r 2d6+3"'}>
+          <button class="btn btn-brasa" ${obs ? 'disabled' : ''}>Enviar</button>
+        </form>
+      </section>
+    </div>`;
+
+  $('#voltar').onclick = telaInicio;
+  $('#deixar')?.addEventListener('click', async () => {
+    if (!confirm('Deixar esta mesa?')) return;
+    await tentar(async () => {
+      await evento(m.id, 'presenca', `@${eu.username} saiu da mesa.`);
+      await q(sb.from('mesa_membros').delete().eq('mesa_id', m.id).eq('user_id', eu.id));
+      aviso('Você deixou a mesa.', 'ok'); telaInicio();
+    });
+  });
+  document.querySelectorAll('[data-dado]').forEach((b) => (b.onclick = () => tentar(async () => {
+    const r = rolar(b.dataset.dado); await evento(m.id, 'rolagem', null, { formula: b.dataset.dado, resultado: r.total, detalhe: r.detalhe }); buscarNovos();
+  })));
+  $('#chat').addEventListener('submit', async (ev) => {
+    ev.preventDefault(); const inp = ev.target.t; const t = inp.value.trim(); if (!t) return;
+    await tentar(async () => {
+      const mm = t.match(/^\/(?:r|rolar)\s+(\S+)\s*(.*)$/i);
+      if (mm) { const r = rolar(mm[1]); await evento(m.id, 'rolagem', mm[2] || null, { formula: mm[1], resultado: r.total, detalhe: r.detalhe }); }
+      else await evento(m.id, 'chat', t);
+      inp.value = ''; buscarNovos();
+    });
+  });
+
+  const regs = (await tentar(() => q(sb.from('mesa_eventos').select('*').eq('mesa_id', id).order('id', { ascending: false }).limit(150)))) ?? [];
+  const log = $('#log');
+  log.innerHTML = regs.reverse().map(itemLog).join('') || '<p class="fraco" id="vazio-log">A mesa está em silêncio. Diga olá ou role um dado.</p>';
+  ultimoId = regs.length ? regs[regs.length - 1].id : 0;
+  rolarFim();
+
+  canal = sb.channel(`mesa:${id}`)
+    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'mesa_eventos', filter: `mesa_id=eq.${id}` }, (p) => anexar(p.new))
+    .subscribe();
+  poll = setInterval(buscarNovos, 4000); // garante atualização mesmo sem realtime ativo
+}
+
+let ultimoId = 0;
+function anexar(r) {
+  if (!mesaAtual || r.mesa_id !== mesaAtual.id || document.querySelector(`[data-id="${r.id}"]`)) return;
+  $('#vazio-log')?.remove();
+  const rolo = $('#rolo'); const perto = rolo.scrollHeight - rolo.scrollTop - rolo.clientHeight < 80;
+  $('#log').insertAdjacentHTML('beforeend', itemLog(r)); ultimoId = Math.max(ultimoId, r.id);
+  if (perto) rolarFim();
+}
+async function buscarNovos() {
+  if (!mesaAtual) return;
+  const { data } = await sb.from('mesa_eventos').select('*').eq('mesa_id', mesaAtual.id).gt('id', ultimoId).order('id');
+  (data || []).forEach(anexar);
+}
+function rolarFim() { const r = $('#rolo'); if (r) r.scrollTop = r.scrollHeight; }
+function pararMesa() { if (canal) { sb.removeChannel(canal); canal = null; } if (poll) { clearInterval(poll); poll = null; } }
+
+// ------------------------------------------------------------ início
+async function iniciar() {
+  const { data: { session } } = await sb.auth.getSession();
+  if (!session) return telaLogin();
+  await tentar(() => carregarPerfil(session.user));
+  if (!eu) { await sb.auth.signOut(); return telaLogin(); }
+  await telaInicio();
+}
+sb.auth.onAuthStateChange((ev) => { if (ev === 'SIGNED_OUT' && eu) { eu = null; pararMesa(); telaLogin(); } });
+iniciar();
+
+</script>
+</body>
+</html>
